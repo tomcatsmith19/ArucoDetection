@@ -34,7 +34,7 @@ while True:
 
             # Check if the marker is oriented with the top facing the right side of the screen
             # and the bottom facing the left side of the screen
-            if top_left[0] < top_right[0] and bottom_left[0] < bottom_right[0]:
+            if top_left[0] > bottom_left[0] and top_left[1] > top_right[1]:
                 # If yes, use green color for the marker
                 color = (0, 255, 0)
             else:
