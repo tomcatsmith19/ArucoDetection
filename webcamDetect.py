@@ -14,6 +14,9 @@ cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     raise IOError("Cannot open webcam")
 
+# Define the tolerance level
+tol = 20
+
 while True:
     # Read frame from the camera.
     ret, frame = cap.read()
@@ -33,8 +36,8 @@ while True:
             top_right, top_left, bottom_right, bottom_left = corner
 
             # Check if the marker is oriented with the top facing the right side of the screen
-            # and the bottom facing the left side of the screen
-            if top_left[0] < top_right[0] and bottom_left[0] < bottom_right[0]:
+            # and the bottom facing the left side of the screen, considering the tolerance level
+            if top_left[0] < top_right[0] + tol and bottom_left[0] < bottom_right[0] + tol:
                 # If yes, use green color for the marker
                 color = (0, 255, 0)
             else:
