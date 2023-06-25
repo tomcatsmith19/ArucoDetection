@@ -14,6 +14,9 @@ cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     raise IOError("Cannot open webcam")
 
+# Define the tolerance level
+tol = 20
+
 while True:
     # Read frame from the camera.
     ret, frame = cap.read()
