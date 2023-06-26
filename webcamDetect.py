@@ -35,6 +35,11 @@ while True:
 
             top_right, top_left, bottom_right, bottom_left = corner
 
+            # calculate radian  yaw angle of the pose
+            delta_pos =  top_left - top_right
+            yaw = np.arctan2(delta_pos[1],delta_pos[0]) # theta = tan^-1(dy/dx) in radians
+            print(yaw)
+
             # Check if the marker is oriented with the top facing the right side of the screen
             # and the bottom facing the left side of the screen
             if top_left[0] > bottom_left[0] and top_left[1] > top_right[1]:
