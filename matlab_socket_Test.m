@@ -1,3 +1,5 @@
+clear all
+
 % Create a tcpip object
 t = tcpip('127.0.0.1', 9999);
 
@@ -8,6 +10,12 @@ while 1
     try
         % Read the data from the server
         data = fscanf(t);
+
+        % Define the data to send
+        dataToSend = 1;
+
+        % Write the data to the server
+        fwrite(t, dataToSend);
 
         % Print the received data
         disp(data);

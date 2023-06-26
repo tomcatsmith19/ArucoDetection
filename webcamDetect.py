@@ -48,6 +48,12 @@ while True:
     if not ret:
         break
 
+    # Receive the data from MATLAB
+    dataReceived = clientsocket.recv(1024)
+
+    # Print the received data
+    print("Data received: ", dataReceived)
+
     # Detect ArUco markers in the frame.
     corners, marker_ids, rejected = cv2.aruco.detectMarkers(frame, dictionary)
 
