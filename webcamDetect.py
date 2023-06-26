@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+import sys
+
+print(sys.executable)
 
 # define the fonts for draw text on image
 font = cv2.FONT_HERSHEY_PLAIN
@@ -17,7 +20,7 @@ if not cap.isOpened():
 # Define the tolerance level
 tol = 20
 
-while True:
+for i in range(100):
     # Read frame from the camera.
     ret, frame = cap.read()
 
@@ -42,7 +45,7 @@ while True:
 
             # Check if the marker is oriented with the top facing the right side of the screen
             # and the bottom facing the left side of the screen
-            if top_left[0] > bottom_left[0] and top_left[1] > top_right[1]:
+            if yaw >0:
                 # If yes, use green color for the marker
                 color = (0, 255, 0)
             else:
