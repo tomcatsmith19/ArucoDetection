@@ -1,8 +1,11 @@
 import cv2
 import numpy as np
 import sys
+import os
+import socket
 
 print(sys.executable)
+print(os.path.dirname(cv2.__file__))
 
 # define the fonts for draw text on image
 font = cv2.FONT_HERSHEY_PLAIN
@@ -19,6 +22,23 @@ if not cap.isOpened():
 
 # Define the tolerance level
 tol = 20
+
+# Create a socket object
+serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Set host to local machine
+host = '127.0.0.1'
+
+port = 9999
+
+# Bind to the port
+serversocket.bind((host, port))
+
+# Queue up to 5 requests
+serversocket.listen(5)
+
+# Establish a connection
+clientsocket, addr = serversocket.accept()
 
 for i in range(100):
     # Read frame from the camera.
@@ -38,14 +58,14 @@ for i in range(100):
 
             top_right, top_left, bottom_right, bottom_left = corner
 
-            # calculate radian  yaw angle of the pose
-            delta_pos =  top_left - top_right
-            yaw = np.arctan2(delta_pos[1],delta_pos[0]) # theta = tan^-1(dy/dx) in radians
+            # Calculate radian yaw angle of the pose
+            delta_pos = top_left - top_right
+            yaw = np.arctan2(delta_pos[1], delta_pos[0])  # theta = tan^-1(dy/dx) in radians
             print(yaw)
 
             # Check if the marker is oriented with the top facing the right side of the screen
             # and the bottom facing the left side of the screen
-            if yaw >0:
+            if yaw > 0:
                 # If yes, use green color for the marker
                 color = (0, 255, 0)
             else:
@@ -66,6 +86,10 @@ for i in range(100):
                 frame, f"id: {marker_id[0]}", top_right, font, 1.3, (255, 0, 255), 2
             )
 
+            # Send yaw data to client
+            msg = f"{yaw}\r\n"
+            clientsocket.send(msg.encode('ascii'))
+
     # Display the resulting frame.
     cv2.imshow("frame", frame)
 
@@ -78,3 +102,6 @@ cap.release()
 
 # Close all OpenCV windows.
 cv2.destroyAllWindows()
+
+# Close the client socket
+clientsocket.close()
