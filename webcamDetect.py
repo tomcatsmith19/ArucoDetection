@@ -34,6 +34,7 @@ port = 9999
 # Bind to the port
 serversocket.bind((host, port))
 
+print('waiting for connection')
 # Queue up to 5 requests
 serversocket.listen(5)
 
