@@ -40,7 +40,7 @@ serversocket.listen(5)
 # Establish a connection
 clientsocket, addr = serversocket.accept()
 
-for i in range(100):
+while True:
     # Read frame from the camera.
     ret, frame = cap.read()
 
