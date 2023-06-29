@@ -1,0 +1,37 @@
+import java.net.ServerSocket
+import java.io.*
+server_socket = ServerSocket(9999);
+fprintf(1, 'Waiting for Python to connect on port %d\n', server_socket.getLocalPort);
+client_socket = server_socket.accept;
+input_stream   = client_socket.getInputStream;
+d_input_stream = DataInputStream(input_stream);
+output_stream   = client_socket.getOutputStream;
+d_output_stream = DataOutputStream(output_stream);
+
+for numOfTrials = 1:5
+        disp('Starting new trial...');
+        
+        data_to_send = 1;
+        d_output_stream.writeUTF(num2str(data_to_send));
+        
+        tic
+        while toc <= 6
+            
+        end
+
+        data_received = str2double(d_input_stream.readUTF());
+        disp(data_received);
+        if data_received == 0
+            disp("Animal was not distracted...");
+        else
+            disp("Animal was distracted...");
+        end
+end
+
+data_to_send = 42;
+d_output_stream.writeUTF(num2str(data_to_send));
+
+input_stream.close;
+d_input_stream.close;
+client_socket.close;
+server_socket.close;
