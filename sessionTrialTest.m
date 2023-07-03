@@ -8,7 +8,12 @@ d_input_stream = DataInputStream(input_stream);
 output_stream   = client_socket.getOutputStream;
 d_output_stream = DataOutputStream(output_stream);
 
-for numOfTrials = 1:5
+LED = arduino("COM4", "ProMini328_5V");
+writePWMDutyCycle(LED,'D5',0.3); % blue
+writePWMDutyCycle(LED,'D9',1); % red
+writePWMDutyCycle(LED,'D6',0.4); % green
+
+for numOfTrials = 1:3
         disp('Starting new trial...');
         
         data_to_send = 1;
@@ -35,3 +40,5 @@ input_stream.close;
 d_input_stream.close;
 client_socket.close;
 server_socket.close;
+
+clear LED;

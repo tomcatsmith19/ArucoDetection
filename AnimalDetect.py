@@ -7,10 +7,13 @@ import time
 
 font = cv2.FONT_HERSHEY_PLAIN
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 if not cap.isOpened():
     raise IOError("Cannot open webcam")
+
+cap.set(cv2.CAP_PROP_FOCUS, 20)
+cap.set(cv2.CAP_PROP_ZOOM, 0)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(("localhost", 9999))
@@ -57,7 +60,7 @@ while True:
 
                     # Determine color based on marker orientation and centroid position
                     color = (0, 255, 0)
-                    if 45 < yaw < 135 and centroid_x > frame.shape[1] // 2:
+                    if 5 < yaw < 175 and centroid_x > frame.shape[1] // 2:
                         # Change the border color of the marker to green (animal was paying attention)
                         color = (0, 255, 0)
                         distraction = 0
