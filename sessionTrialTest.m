@@ -1,6 +1,6 @@
 import java.net.ServerSocket
 import java.io.*
-server_socket = ServerSocket(9999);
+server_socket = ServerSocket(9998);
 fprintf(1, 'Waiting for Python to connect on port %d\n', server_socket.getLocalPort);
 client_socket = server_socket.accept;
 input_stream   = client_socket.getInputStream;
