@@ -13,7 +13,7 @@ writePWMDutyCycle(LED,'D5',0.3); % blue
 writePWMDutyCycle(LED,'D9',1); % red
 writePWMDutyCycle(LED,'D6',0.4); % green
 
-for numOfTrials = 1:3
+for numOfTrials = 1:5
         disp('Starting new trial...');
         
         data_to_send = 1;

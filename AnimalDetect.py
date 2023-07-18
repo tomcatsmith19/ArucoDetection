@@ -43,13 +43,13 @@ while True:
                 break
             
             # Draw ROI outline for the right half of the screen for camera 1
-            roi_start = ((frame.shape[1] // 2) - 30, 0)
-            roi_end = (frame.shape[1] - 100, frame.shape[0])
+            roi_start = ((frame.shape[1] // 2 - 50), 0)
+            roi_end = (frame.shape[1], frame.shape[0])
             cv2.rectangle(frame, roi_start, roi_end, (255, 0, 0), 3)
 
             # Draw ROI outline for the left half of the screen for camera 2
-            roi_start2 = (100, 0)
-            roi_end2 = ((frame.shape[1] // 2) + 20, frame2.shape[0])
+            roi_start2 = (0, 0)
+            roi_end2 = ((frame.shape[1] // 2) + 50, frame2.shape[0])
             cv2.rectangle(frame2, roi_start2, roi_end2, (255, 0, 0), 3)
 
             # Detect ArUco markers in the frame of camera 1
