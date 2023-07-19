@@ -21,17 +21,36 @@ cap2.set(cv2.CAP_PROP_FOCUS, 20)
 cap2.set(cv2.CAP_PROP_ZOOM, 0)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("localhost", 9998))
+s.connect(("localhost", 9999))
 
 while True:
+    s.setblocking(True)
     data_received = s.recv(1024)[2:].decode("utf-8")
     print("Data Received: ", data_received)
 
-    if int(data_received) == 1:
+    if int(data_received) > 0:
         distraction = 1
         start_time = time.time()
+        animal_poked = 0
         
-        while time.time()-start_time <= 6:
+        s.setblocking(False)
+        while time.time()-start_time <= int(data_received) and animal_poked != 1:
+            
+            try:
+                poke_received = s.recv(1024)[2:].decode("utf-8")
+                if not poke_received:
+                    print("No data received.")
+                else:
+                    print("Animal poked and broke out of loop", int(poke_received))
+                    animal_poked = 1
+            except socket.error as e:
+                # Handle the case when recv() is blocked
+                if e.errno == socket.errno.EWOULDBLOCK:
+                    print("Animal has not poked yet... no data available.")
+                else:
+                    # Handle other socket errors
+                    print("Socket error:", e)
+
             # Read frame from the camera 1
             ret, frame = cap.read()
             if not ret:
@@ -148,7 +167,7 @@ while True:
         s.send(data_encoded)
         print("Data Sent: ", data_encoded)
 
-    elif int(data_received) == 42:
+    elif int(data_received) == -1:
         break
 
 # Release the VideoCapture object 1

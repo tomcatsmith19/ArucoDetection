@@ -1,6 +1,6 @@
 import java.net.ServerSocket
 import java.io.*
-server_socket = ServerSocket(9998);
+server_socket = ServerSocket(9999);
 fprintf(1, 'Waiting for Python to connect on port %d\n', server_socket.getLocalPort);
 client_socket = server_socket.accept;
 input_stream   = client_socket.getInputStream;
@@ -13,15 +13,14 @@ writePWMDutyCycle(LED,'D5',0.3); % blue
 writePWMDutyCycle(LED,'D9',1); % red
 writePWMDutyCycle(LED,'D6',0.4); % green
 
-for numOfTrials = 1:5
+for numOfTrials = 1:3
         disp('Starting new trial...');
         
-        data_to_send = 1;
+        data_to_send = 6;
         d_output_stream.writeUTF(num2str(data_to_send));
         
         tic
         while toc <= 6
-            
         end
 
         data_received = str2double(d_input_stream.readUTF());
@@ -33,7 +32,7 @@ for numOfTrials = 1:5
         end
 end
 
-data_to_send = 42;
+data_to_send = -1;
 d_output_stream.writeUTF(num2str(data_to_send));
 
 input_stream.close;
