@@ -21,8 +21,7 @@ cap2.set(cv2.CAP_PROP_FOCUS, 20)
 cap2.set(cv2.CAP_PROP_ZOOM, 0)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("localhost", 9997))
-
+s.connect(("localhost", 9995))
 while True:
     s.setblocking(True)
     data_received = s.recv(1024)[2:].decode("utf-8")
