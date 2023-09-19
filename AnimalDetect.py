@@ -8,17 +8,17 @@ font = cv2.FONT_HERSHEY_PLAIN
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 
 # camera setup
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(1)
 cap.set(cv2.CAP_PROP_FOCUS, 20)
 cap.set(cv2.CAP_PROP_ZOOM, 0)
-cap2 = cv2.VideoCapture(1)
+cap2 = cv2.VideoCapture(3)
 cap2.set(cv2.CAP_PROP_FOCUS, 20)
 cap2.set(cv2.CAP_PROP_ZOOM, 0)
 print("Cameras connected")
 
 # server socket setup with MATLAB
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("localhost", 9995))
+s.connect(("localhost", 9999))
 s.setblocking(False)
 print("Connected to local host")
 
