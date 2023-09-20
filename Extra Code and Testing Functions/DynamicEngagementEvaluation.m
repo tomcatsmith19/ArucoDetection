@@ -2,7 +2,7 @@
 [file, path] = uigetfile('*.xlsx', 'Select an Excel file');
 if isequal(file,0)
     disp('User canceled the file selection');
-    return;
+    return; 
 end
 excelFile = fullfile(path, file);
 
