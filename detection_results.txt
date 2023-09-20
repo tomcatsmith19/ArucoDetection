@@ -1,0 +1,2 @@
+cam1_exclusive, cam1_and_cam2, cam2_exclusive, no_camera
+,60,135,129, 51

@@ -33,13 +33,14 @@ print("Connected to local host")
 
 # primary loop that keeps running until MATLAB tells it to stop
 trialStatus = 0
-while int(trialStatus) != -1:
+while int(trialStatus) != 4:
     # wait for MATLAB to send a value, indicating the start of a trial
     try:
         trialStatus = s.recv(1024)[2:].decode("utf-8")
         if not trialStatus:
             # if you see this, then matlab stopped communicating with python
             print("No trial data received")
+            break
         else:
             # if you see this, then matlab sent a value to begin the trial
             print("Trial was started")
@@ -50,12 +51,13 @@ while int(trialStatus) != -1:
 
             # wait until the trial is over
             responseStatus = 0
-            while int(responseStatus) != 2:
+            while int(responseStatus) != 2 and int(responseStatus) != 4:
                 try:
                     responseStatus = s.recv(1024)[2:].decode("utf-8")
                     if not responseStatus:
                         # if you see this, then matlab stopped communicating with python
                         print("No response data received")
+                        break
                     else:
                         # if you see this, then matlab sent a value to end the trial
                         print("Trial was ended")
