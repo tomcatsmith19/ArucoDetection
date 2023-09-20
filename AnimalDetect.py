@@ -7,6 +7,15 @@ import struct
 font = cv2.FONT_HERSHEY_PLAIN
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 
+# results variables
+trials_started = False
+found_cam1 = False
+found_cam2 = False
+exclusive_detection_cam1  = 0
+exclusive_dectection_cam2 = 0
+detection_cam1_and_cam2 = 0
+no_detection_cam1_cam2 = 0
+
 # camera setup
 cap = cv2.VideoCapture(1)
 cap.set(cv2.CAP_PROP_FOCUS, 20)
@@ -34,6 +43,7 @@ while int(trialStatus) != -1:
         else:
             # if you see this, then matlab sent a value to begin the trial
             print("Trial was started")
+            trials_started = True
 
             # reset distract variable to 1 (distracted) between trials
             distraction = 1
@@ -95,6 +105,7 @@ while int(trialStatus) != -1:
 
                 # if the marker from camera 1 was found
                 if corners:
+                    found_cam1 = True
                     for corner, marker_id in zip(corners, marker_ids):
                         corner = corner.reshape(4, 2)
                         corner = corner.astype(int)
@@ -131,6 +142,7 @@ while int(trialStatus) != -1:
                 
                 # if the marker from camera 2 was found
                 if corners2:
+                    found_cam2 = True
                     for corner2, marker_id2 in zip(corners2, marker_ids2):
                         corner2 = corner2.reshape(4, 2)
                         corner2 = corner2.astype(int)
@@ -164,6 +176,20 @@ while int(trialStatus) != -1:
                         cv2.putText(frame2, "FR", tuple(top_left2), font, 1.3, (255, 0, 255), 2)
                         cv2.putText(frame2, "BR", tuple(bottom_right2), font, 1.3, (255, 0, 255), 2)
                         cv2.putText(frame2, "BL", tuple(bottom_left2), font, 1.3, (255, 0, 255), 2)
+
+                # record result
+                if trials_started:
+                    if found_cam1 and found_cam2:
+                        detection_cam1_and_cam2 += 1
+                    elif found_cam1:
+                        exclusive_detection_cam1 += 1
+                    elif found_cam2:
+                        exclusive_dectection_cam2 += 1
+                    else:
+                        no_detection_cam1_cam2 += 1
+                
+                found_cam1 = False
+                found_cam2 = False
 
                 # show both camera frames with ArUco tracking
                 cv2.imshow("Camera 1",frame)
@@ -202,6 +228,7 @@ while int(trialStatus) != -1:
 
     # if the marker from camera 1 was found
     if corners:
+        found_cam1 = True
         for corner, marker_id in zip(corners, marker_ids):
             corner = corner.reshape(4, 2)
             corner = corner.astype(int)
@@ -237,6 +264,7 @@ while int(trialStatus) != -1:
     
     # if the marker from camera 2 was found
     if corners2:
+        found_cam2 = True
         for corner2, marker_id2 in zip(corners2, marker_ids2):
             corner2 = corner2.reshape(4, 2)
             corner2 = corner2.astype(int)
@@ -270,6 +298,20 @@ while int(trialStatus) != -1:
             cv2.putText(frame2, "BR", tuple(bottom_right2), font, 1.3, (255, 0, 255), 2)
             cv2.putText(frame2, "BL", tuple(bottom_left2), font, 1.3, (255, 0, 255), 2)
 
+    # record result
+    if trials_started:
+        if found_cam1 and found_cam2:
+            detection_cam1_and_cam2 += 1
+        elif found_cam1:
+            exclusive_detection_cam1 += 1
+        elif found_cam2:
+            exclusive_dectection_cam2 += 1
+        else:
+            no_detection_cam1_cam2 += 1
+    
+    found_cam1 = False
+    found_cam2 = False
+
     # show both camera frames with ArUco tracking
     cv2.imshow("Camera 1",frame)
     cv2.imshow("Camera 2",frame2)
@@ -282,3 +324,10 @@ cap.release()
 cap2.release()
 cv2.destroyAllWindows()
 s.close()
+
+# save results to a text file
+header = "cam1_exclusive, cam1_and_cam2, cam2_exclusive, no_camera\n"
+
+# Open the file in write mode and write the content
+with open("detection_results.txt", "w") as file:
+    file.write(f"{header},{str(exclusive_detection_cam1)},{str(detection_cam1_and_cam2)},{str(exclusive_dectection_cam2)}, {str(no_detection_cam1_cam2)}\n")
