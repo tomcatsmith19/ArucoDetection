@@ -25,24 +25,18 @@ CombinedData = sort([Sheet3DataA; Sheet3DataC]);
 trialTimeData = sort(CombinedData);
 AllSessionData(:, 2) = trialTimeData(:, 1);
 
-% Initialize ColorAssignment array
-ColorAssignment = strings(size(AllSessionData, 1), 1);
-
-% Assign "green" to indices with 0s and "red" to indices with 2s
-ColorAssignment(AllSessionData(:, 1) == 0) = '#B3E48E';
-ColorAssignment(AllSessionData(:, 1) == 2) = '#E07F80';
-
-% Calculate the forward-moving rolling probabilities with a 5-minute window
+% Calculate the rolling probabilities with a 5-minute window
 binSize = 5; % Minutes per bin
 maxTime = max(AllSessionData(:, 2));
 timePoints = 0:maxTime; % Generate time points for the entire session
 
-% Initialize arrays to store rolling probabilities
+% Initialize arrays to store rolling probabilities and colors
 RollingProbabilities = zeros(size(timePoints));
+ColorAssignment = cell(size(timePoints));
 
 for i = 1:length(timePoints)
-    windowStart = max(0, timePoints(i) - binSize); % Adjust for the back-heavy plot
-    windowEnd = timePoints(i);
+    windowStart = timePoints(i);
+    windowEnd = windowStart + binSize;
     
     % Filter rows within the current rolling window
     windowRows = AllSessionData(:, 2) >= windowStart & AllSessionData(:, 2) < windowEnd;
@@ -55,38 +49,29 @@ for i = 1:length(timePoints)
     if (numZeros + numTwos) > 0
         RollingProbabilities(i) = numZeros / (numZeros + numTwos) * 100;
     else
-        RollingProbabilities(i) = 100; % Set to NaN if no data in the window
+        RollingProbabilities(i) = NaN; % Set to NaN if no data in the window
+    end
+    
+    % Assign "green" or "red" color based on the probability
+    if RollingProbabilities(i) >= 50
+        ColorAssignment{i} = '#B3E48E'; % Engaged (green)
+    else
+        ColorAssignment{i} = '#E07F80'; % Distracted (red)
     end
 end
 
 % Create a figure
 figure;
 
-% Define the initial time and color
-currentTime = 0;
-currentColor = ColorAssignment(1);
-
-% Loop through AllSessionData and ColorAssignment
-for i = 1:size(AllSessionData, 1)
-    % Get the time and color for the current data point
-    time = AllSessionData(i, 2);
-    color = ColorAssignment(i);
+% Plot rectangles with rolling colors
+for i = 1:length(timePoints)-1
+    timeStart = timePoints(i);
+    timeEnd = timePoints(i+1);
+    color = ColorAssignment{i};
     
-    % If the color is the same as the previous value, extend the rectangle
-    if strcmp(color, currentColor)
-        continue;
-    else
-        % Plot a rectangle with the previous color and no border
-        rectangle('Position', [currentTime, 0, time - currentTime, 100], 'FaceColor', currentColor, 'EdgeColor', 'none');
-        
-        % Update the current time and color
-        currentTime = time;
-        currentColor = color;
-    end
+    % Plot a rectangle with the current color and no border
+    rectangle('Position', [timeStart, 0, binSize, 1], 'FaceColor', color, 'EdgeColor', 'none');
 end
-
-% Plot the last rectangle with no border
-rectangle('Position', [currentTime, 0, maxTime - currentTime, 100], 'FaceColor', currentColor, 'EdgeColor', 'none');
 
 % Define the threshold for 50%
 threshold = 50;
@@ -97,7 +82,7 @@ timePointBelowThreshold = timePoints(find(RollingProbabilities < threshold, 1, '
 % Add a thick blue vertical line at the time point below 50%
 if ~isnan(timePointBelowThreshold)
     hold on; % Allow multiple plot objects in the same figure
-    plot([timePointBelowThreshold, timePointBelowThreshold], [0, 100], 'b', 'LineWidth', 4);
+    plot([timePointBelowThreshold, timePointBelowThreshold], [0, 1], 'b', 'LineWidth', 2);
     hold off; % Release hold for further plotting
 end
 
@@ -105,19 +90,14 @@ end
 xlim([0, maxTime]);
 xlabel('Time (minutes)');
 
-% Set y-axis limits and label
-ylim([0, 100]);
-ylabel('Engagement (%)');
+% Remove y-axis labels, tick marks, and values
+set(gca, 'YTick', []);
+set(gca, 'YTickLabel', []);
 
 % Set the title
-title('Back-Heavy Rectangular Kernel Convolution: Transitions Between Engagement and Distraction');
+title('Transitions Between Engaged and Distracted');
 
 % Display the plot
 grid on;
-
-% Plot the forward-moving solid black line for rolling probabilities (reversed on x-axis)
-hold on;
-plot(timePoints, RollingProbabilities, 'k', 'LineWidth', 2); % Reverse the x-axis
-hold off;
 
 disp(RollingProbabilities);
