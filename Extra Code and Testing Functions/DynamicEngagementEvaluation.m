@@ -1,3 +1,6 @@
+clear all;
+clc;
+
 % Step 1: Select an excel file
 [file, path] = uigetfile('*.xlsx', 'Select an Excel file');
 if isequal(file,0)
@@ -119,3 +122,5 @@ title('Transitions Between Engaged and Distracted');
 
 % Display the plot
 grid on;
+
+disp(ProbabilityOfEngagement_5min_Bins);
