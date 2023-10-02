@@ -17,9 +17,13 @@ AllSessionData(:, 1) = data;
 % Load data from Sheet3 for combining and sorting
 Sheet3DataA = xlsread(excelFile, 'Sheet3', 'A:A'); % Load data from column A
 Sheet3DataC = xlsread(excelFile, 'Sheet3', 'C:C'); % Load data from column C
+Sheet3DataE = xlsread(excelFile, 'Sheet3', 'E:E'); % Load data from column E
 
 % Combine data from columns A and C into a single column
 CombinedData = sort([Sheet3DataA; Sheet3DataC]);
+
+% Combine data from column E now
+CombinedData = sort([CombinedData; Sheet3DataE]);
 
 % Sort the combined data from smallest to largest
 trialTimeData = sort(CombinedData);
