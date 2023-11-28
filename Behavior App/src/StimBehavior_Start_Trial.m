@@ -1,0 +1,33 @@
+function trial = StimBehavior_Start_Trial(handles,session,trial)
+
+%
+%StimBehavior_Start_Trial.m - Vulintus, Inc.
+%
+%   This function initializes all of the real-time variables right at the 
+%   start of a trial in the StimBehavior task.
+%   
+%   UPDATE LOG:
+%   01/18/2022 - Drew Sloan - Function first implemented, adapted from
+%       ST_Tactile_2AFC_Reset_Trial.m.
+%
+
+trial.start_time = now;                                                     %Save the current clock reading.
+trial.start_millis = session.buffer(end,1);                                 %Save the latest millisecond clock reading.
+trial.end_time = trial.start_time + trial.choice_time/86400;                %Set the clock reading for the end of the trial.
+trial.signal(1:session.pre_sample_N,:) = ...
+    session.buffer(session.pre_sample_indices,:);                           %Copy the preceding samples to the trial signal.
+trial.signal_index = session.pre_sample_N;                                  %Update the trial signal index.
+if handles.press_tone_enable == 1                                           %If press tones are enabled...
+    handles.moto.play_tone(1);                                              %Start the press tone.
+end
+
+str = sprintf(['%s - Starting Trial #%1.0f, '...
+    '%s, '...
+    'target feeder = %s, '...
+    'min. touch time = %1.2f s...'],...
+    datestr(trial.start_time,13),...
+    session.trial_num,...
+    trial.pad_label,...
+    trial.target_feeder,...
+    trial.hold_time);                                                       %Create a text string.
+Replace_Msg(handles.msgbox,str);                                            %Show the text string on the messagebox.
