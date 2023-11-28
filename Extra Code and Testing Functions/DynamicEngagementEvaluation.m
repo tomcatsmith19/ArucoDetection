@@ -1,8 +1,11 @@
+clear all;
+clc;
+
 % Step 1: Select an excel file
 [file, path] = uigetfile('*.xlsx', 'Select an Excel file');
 if isequal(file,0)
     disp('User canceled the file selection');
-    return; 
+    return;
 end
 excelFile = fullfile(path, file);
 
@@ -14,37 +17,17 @@ AllSessionData(:, 1) = data;
 % Load data from Sheet3 for combining and sorting
 Sheet3DataA = xlsread(excelFile, 'Sheet3', 'A:A'); % Load data from column A
 Sheet3DataC = xlsread(excelFile, 'Sheet3', 'C:C'); % Load data from column C
+Sheet3DataE = xlsread(excelFile, 'Sheet3', 'E:E'); % Load data from column E
 
 % Combine data from columns A and C into a single column
 CombinedData = sort([Sheet3DataA; Sheet3DataC]);
 
+% Combine data from column E now
+CombinedData = sort([CombinedData; Sheet3DataE]);
+
 % Sort the combined data from smallest to largest
 trialTimeData = sort(CombinedData);
 AllSessionData(:, 2) = trialTimeData(:, 1);
-
-% Step 4: Bin the rows in segments of 5 minutes
-binSize = 5; % Minutes per bin
-maxTime = max(AllSessionData(:, 2));
-numBins = ceil(maxTime / binSize);
-
-% Initialize variables to store the current bin's start and end times
-binStart = 0;
-binEnd = binSize;
-
-for i = 1:numBins
-    % Filter rows within the current bin
-    binRows = AllSessionData(:, 2) >= binStart & AllSessionData(:, 2) < binEnd;
-    
-    % Calculate the probability of 0's within the bin
-    binData = AllSessionData(binRows, 1);
-    numZeros = sum(binData == 0);
-    numTwos = sum(binData == 2);
-    ProbabilityOfEngagement_5min_Bins(i) = numZeros / (numZeros + numTwos) * 100;
-    
-    % Update bin start and end times for the next iteration
-    binStart = binEnd;
-    binEnd = binStart + binSize;
-end
 
 % Initialize ColorAssignment array
 ColorAssignment = strings(size(AllSessionData, 1), 1);
@@ -53,8 +36,32 @@ ColorAssignment = strings(size(AllSessionData, 1), 1);
 ColorAssignment(AllSessionData(:, 1) == 0) = '#B3E48E';
 ColorAssignment(AllSessionData(:, 1) == 2) = '#E07F80';
 
-% Find the maximum time in AllSessionData column 2
+% Calculate the forward-moving rolling probabilities with a 5-minute window
+binSize = 5; % Minutes per bin
 maxTime = max(AllSessionData(:, 2));
+timePoints = 0:maxTime; % Generate time points for the entire session
+
+% Initialize arrays to store rolling probabilities
+RollingProbabilities = zeros(size(timePoints));
+
+for i = 1:length(timePoints)
+    windowStart = max(0, timePoints(i) - binSize); % Adjust for the back-heavy plot
+    windowEnd = timePoints(i);
+    
+    % Filter rows within the current rolling window
+    windowRows = AllSessionData(:, 2) >= windowStart & AllSessionData(:, 2) < windowEnd;
+    
+    % Calculate the probability of 0's within the rolling window
+    windowData = AllSessionData(windowRows, 1);
+    numZeros = sum(windowData == 0);
+    numTwos = sum(windowData == 2);
+    
+    if (numZeros + numTwos) > 0
+        RollingProbabilities(i) = numZeros / (numZeros + numTwos) * 100;
+    else
+        RollingProbabilities(i) = 100; % Set to NaN if no data in the window
+    end
+end
 
 % Create a figure
 figure;
@@ -74,7 +81,7 @@ for i = 1:size(AllSessionData, 1)
         continue;
     else
         % Plot a rectangle with the previous color and no border
-        rectangle('Position', [currentTime, 0, time - currentTime, 1], 'FaceColor', currentColor, 'EdgeColor', 'none');
+        rectangle('Position', [currentTime, 0, time - currentTime, 100], 'FaceColor', currentColor, 'EdgeColor', 'none');
         
         % Update the current time and color
         currentTime = time;
@@ -83,26 +90,18 @@ for i = 1:size(AllSessionData, 1)
 end
 
 % Plot the last rectangle with no border
-rectangle('Position', [currentTime, 0, maxTime - currentTime, 1], 'FaceColor', currentColor, 'EdgeColor', 'none');
+rectangle('Position', [currentTime, 0, maxTime - currentTime, 100], 'FaceColor', currentColor, 'EdgeColor', 'none');
 
 % Define the threshold for 50%
 threshold = 50;
 
-% Initialize a variable to store the time point where percentage drops below 50%
-timePointBelowThreshold = 0;
-
 % Find the time point where percentage drops below 50%
-for i = 1:numBins
-    if ProbabilityOfEngagement_5min_Bins(i) < threshold
-        timePointBelowThreshold = (i - 1) * binSize; % Use the start time of the bin
-        break;
-    end
-end
+timePointBelowThreshold = timePoints(find(RollingProbabilities < threshold, 1, 'first'));
 
 % Add a thick blue vertical line at the time point below 50%
-if timePointBelowThreshold > 0
+if ~isnan(timePointBelowThreshold)
     hold on; % Allow multiple plot objects in the same figure
-    plot([timePointBelowThreshold, timePointBelowThreshold], [0, 1], 'b', 'LineWidth', 2);
+    plot([timePointBelowThreshold, timePointBelowThreshold], [0, 100], 'b', 'LineWidth', 4);
     hold off; % Release hold for further plotting
 end
 
@@ -110,12 +109,19 @@ end
 xlim([0, maxTime]);
 xlabel('Time (minutes)');
 
-% Remove y-axis labels, tick marks, and values
-set(gca, 'YTick', []);
-set(gca, 'YTickLabel', []);
+% Set y-axis limits and label
+ylim([0, 100]);
+ylabel('Engagement (%)');
 
 % Set the title
-title('Transitions Between Engaged and Distracted');
+title('Back-Heavy Rectangular Kernel Convolution: Transitions Between Engagement and Distraction');
 
 % Display the plot
 grid on;
+
+% Plot the forward-moving solid black line for rolling probabilities (reversed on x-axis)
+hold on;
+plot(timePoints, RollingProbabilities, 'k', 'LineWidth', 2); % Reverse the x-axis
+hold off;
+
+disp(RollingProbabilities);
