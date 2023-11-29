@@ -36,10 +36,6 @@ AllSessionData(:, 2) = trialTimeData(:, 1);
 binSize = 5; % Minutes per bin
 maxTime = max(AllSessionData(:, 2));
 timePoints = 0:maxTime; % Generate time points for the entire session
-% if maxTime < totalSessionTime
-%      AllSessionData = [AllSessionData; [2,maxTime+5]; [2, totalSessionTime]];
-%      maxTime = max(AllSessionData(:, 2));
-% end
 
 % Initialize ColorAssignment array
 ColorAssignment = strings(size(AllSessionData, 1), 1);
@@ -72,13 +68,13 @@ for i = 1:length(timePoints)
 end
 
 if maxTime < totalSessionTime
-     %dt = abs(AllSessionData(end,2)-AllSessionData(end-1,2));
+     dt = abs(AllSessionData(end,2)-AllSessionData(end-1,2));
      AllSessionData(end,1) = 2;
-     AllSessionData = [AllSessionData; [2, totalSessionTime]];
-     RollingProbabilities = [RollingProbabilities,0];
-     ColorAssignment = [ColorAssignment; '#E07F80'];
-     %temp = timePoints(end);
-     timePoints = [timePoints, round(totalSessionTime)];
+     AllSessionData = [AllSessionData; [2, maxTime+dt]; [2, totalSessionTime]];
+     RollingProbabilities = [RollingProbabilities,0,0];
+     ColorAssignment = [ColorAssignment; '#E07F80'; '#E07F80'];
+     temp = timePoints(end);
+     timePoints = [timePoints, temp+1, round(totalSessionTime)];
 
 end
 
@@ -109,7 +105,7 @@ for i = 1:size(AllSessionData, 1)
 end
 
 % Plot the last rectangle with no border
-rectangle('Position', [currentTime, 0, maxTime - currentTime, 100], 'FaceColor', currentColor, 'EdgeColor', 'none');
+rectangle('Position', [currentTime, 0, max(maxTime,totalSessionTime) - currentTime, 100], 'FaceColor', currentColor, 'EdgeColor', 'none');
 
 % Define the threshold for 50%
 threshold = 50;
