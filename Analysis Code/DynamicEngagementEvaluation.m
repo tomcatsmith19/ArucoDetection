@@ -67,6 +67,9 @@ for i = 1:length(timePoints)
     end
 end
 
+% if the animal stops poking and enters a pause period before the final
+% session time has been reached... then make sure that the convolution
+% adapts to the situation
 if maxTime < totalSessionTime
      dt = abs(AllSessionData(end,2)-AllSessionData(end-1,2));
      AllSessionData(end,1) = 2;
@@ -75,7 +78,6 @@ if maxTime < totalSessionTime
      ColorAssignment = [ColorAssignment; '#E07F80'; '#E07F80'];
      temp = timePoints(end);
      timePoints = [timePoints, temp+1, round(totalSessionTime)];
-
 end
 
 % Create a figure
