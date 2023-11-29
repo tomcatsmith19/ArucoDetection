@@ -72,13 +72,12 @@ for i = 1:length(timePoints)
 end
 
 if maxTime < totalSessionTime
-     %dt = abs(AllSessionData(end,2)-AllSessionData(end-1,2));
-     AllSessionData(end,1) = 2;
-     AllSessionData = [AllSessionData; [2, totalSessionTime]];
-     RollingProbabilities = [RollingProbabilities,0];
-     ColorAssignment = [ColorAssignment; '#E07F80'];
-     %temp = timePoints(end);
-     timePoints = [timePoints, round(totalSessionTime)];
+     dt = abs(AllSessionData(end,2)-AllSessionData(end-1,2));
+     AllSessionData = [AllSessionData; [2,maxTime+1e-6]; [2, totalSessionTime]];
+     RollingProbabilities = [RollingProbabilities, 0, 0];
+     ColorAssignment = [ColorAssignment; '#E07F80';'#E07F80'];
+     temp = timePoints(end);
+     timePoints = [timePoints, round(maxTime), round(totalSessionTime)];
 
 end
 
