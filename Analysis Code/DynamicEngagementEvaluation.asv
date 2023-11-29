@@ -70,9 +70,9 @@ end
 if maxTime < totalSessionTime
      dt = abs(AllSessionData(end,2)-AllSessionData(end-1,2));
      AllSessionData(end,1) = 2;
-     AllSessionData = [AllSessionData; [2, maxTime+dt] [2, totalSessionTime]];
+     AllSessionData = [AllSessionData; [2, maxTime+dt]; [2, totalSessionTime]];
      RollingProbabilities = [RollingProbabilities,0,0];
-     ColorAssignment = [ColorAssignment; '#E07F80','#E07F80'];
+     ColorAssignment = [ColorAssignment; '#E07F80'; '#E07F80'];
      temp = timePoints(end);
      timePoints = [timePoints, temp+1, round(totalSessionTime)];
 
